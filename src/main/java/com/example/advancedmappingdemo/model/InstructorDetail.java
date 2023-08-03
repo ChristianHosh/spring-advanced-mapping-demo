@@ -18,6 +18,4 @@ public class InstructorDetail {
 
     @Column(name = "hobby")
     private String hobby;
-
-
 }

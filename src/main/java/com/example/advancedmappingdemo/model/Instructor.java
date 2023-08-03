@@ -26,4 +26,5 @@ public class Instructor {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "instructor_details_id")
     private InstructorDetail instructorDetail;
+
 }

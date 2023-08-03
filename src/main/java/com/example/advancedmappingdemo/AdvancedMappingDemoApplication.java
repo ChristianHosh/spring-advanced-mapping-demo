@@ -9,5 +9,4 @@ public class AdvancedMappingDemoApplication {
     public static void main(String[] args) {
         SpringApplication.run(AdvancedMappingDemoApplication.class, args);
     }
-
 }
