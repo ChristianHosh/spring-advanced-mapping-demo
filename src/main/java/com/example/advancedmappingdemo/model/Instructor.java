@@ -1,8 +1,12 @@
 package com.example.advancedmappingdemo.model;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "instructor")
@@ -25,6 +29,21 @@ public class Instructor {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "instructor_details_id")
-    private InstructorDetail instructorDetail;
+    @JsonManagedReference
+    private InstructorDetail instructorDetails;
+
+    @OneToMany(mappedBy = "instructor", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JsonManagedReference
+    private List<Course> courses;
+
+    public void addCourse(Course courseToAdd){
+        if (courses == null){
+            courses = new ArrayList<>();
+        }
+
+        courses.add(courseToAdd);
+
+        courseToAdd.setInstructor(this);
+    }
 
 }

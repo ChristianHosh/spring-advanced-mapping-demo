@@ -1,6 +1,8 @@
 package com.example.advancedmappingdemo.controller;
 
+import com.example.advancedmappingdemo.model.Course;
 import com.example.advancedmappingdemo.model.Instructor;
+import com.example.advancedmappingdemo.service.CourseService;
 import com.example.advancedmappingdemo.service.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,9 @@ public class InstructorController {
     private final InstructorService service;
 
     @Autowired
+    private  CourseService courseService;
+
+    @Autowired
     public InstructorController(InstructorService service) {
         this.service = service;
     }
@@ -23,7 +28,7 @@ public class InstructorController {
 
     // GET ALL INSTRUCTORS
     @GetMapping("")
-    public ResponseEntity<List<Instructor>> getAll() {
+    public ResponseEntity<List<Instructor>> getAllInstructors() {
         List<Instructor> instructorList = service.findAll();
 
         if (instructorList.isEmpty()){
@@ -36,7 +41,7 @@ public class InstructorController {
 
     // GET INSTRUCTOR BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<Instructor> getById(@PathVariable("id") int id) {
+    public ResponseEntity<Instructor> getInstructorById(@PathVariable("id") int id) {
         System.out.println("FINDING INSTRUCTOR WITH ID " + id);
         Instructor instructor = service.findById(id);
 
@@ -46,6 +51,20 @@ public class InstructorController {
         }
 
         return new ResponseEntity<>(instructor, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/courses")
+    public ResponseEntity<?> getInstructorCourses(@PathVariable("id") int id) {
+        System.out.println("FINDING INSTRUCTOR WITH ID " + id);
+
+        Instructor instructor = service.findById(id);
+
+        if (instructor == null){
+            System.out.println("INSTRUCTOR WITH ID " + id + " NOT FOUND");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        List<Course> coursesByInstructor = courseService.findCoursesByInstructor(instructor);
+        return ResponseEntity.ok(coursesByInstructor);
     }
 
     @PostMapping("")
