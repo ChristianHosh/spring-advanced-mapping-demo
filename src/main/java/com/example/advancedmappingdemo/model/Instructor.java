@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,15 +34,5 @@ public class Instructor {
     @OneToMany(mappedBy = "instructor", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JsonManagedReference
     private List<Course> courses;
-
-    public void addCourse(Course courseToAdd){
-        if (courses == null){
-            courses = new ArrayList<>();
-        }
-
-        courses.add(courseToAdd);
-
-        courseToAdd.setInstructor(this);
-    }
 
 }

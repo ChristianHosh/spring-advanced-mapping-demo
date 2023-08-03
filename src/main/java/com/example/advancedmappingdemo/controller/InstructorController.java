@@ -15,21 +15,21 @@ import java.util.List;
 @RequestMapping("/instructors")
 public class InstructorController {
 
-    private final InstructorService service;
+    private final InstructorService instructorService;
+
+    private final CourseService courseService;
 
     @Autowired
-    private  CourseService courseService;
-
-    @Autowired
-    public InstructorController(InstructorService service) {
-        this.service = service;
+    public InstructorController(InstructorService instructorService, CourseService courseService) {
+        this.instructorService = instructorService;
+        this.courseService = courseService;
     }
 
 
     // GET ALL INSTRUCTORS
     @GetMapping("")
     public ResponseEntity<List<Instructor>> getAllInstructors() {
-        List<Instructor> instructorList = service.findAll();
+        List<Instructor> instructorList = instructorService.findAll();
 
         if (instructorList.isEmpty()){
             System.out.println("INSTRUCTORS LIST IS EMPTY");
@@ -43,7 +43,7 @@ public class InstructorController {
     @GetMapping("/{id}")
     public ResponseEntity<Instructor> getInstructorById(@PathVariable("id") int id) {
         System.out.println("FINDING INSTRUCTOR WITH ID " + id);
-        Instructor instructor = service.findById(id);
+        Instructor instructor = instructorService.findById(id);
 
         if (instructor == null){
             System.out.println("INSTRUCTOR WITH ID " + id + " NOT FOUND");
@@ -54,23 +54,43 @@ public class InstructorController {
     }
 
     @GetMapping("/{id}/courses")
-    public ResponseEntity<?> getInstructorCourses(@PathVariable("id") int id) {
+    public ResponseEntity<List<Course>> getInstructorCourses(@PathVariable("id") int id) {
         System.out.println("FINDING INSTRUCTOR WITH ID " + id);
 
-        Instructor instructor = service.findById(id);
+        Instructor instructor = instructorService.findById(id);
 
         if (instructor == null){
             System.out.println("INSTRUCTOR WITH ID " + id + " NOT FOUND");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
         List<Course> coursesByInstructor = courseService.findCoursesByInstructor(instructor);
-        return ResponseEntity.ok(coursesByInstructor);
+
+        return new ResponseEntity<>(coursesByInstructor, HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/courses")
+    public ResponseEntity<Course> saveCourseToInstructor(@PathVariable("id") int instructorId, @RequestBody Course course){
+        System.out.println("FINDING INSTRUCTOR WITH ID " + instructorId);
+
+        Instructor instructor = instructorService.findById(instructorId);
+
+        if (instructor == null){
+            System.out.println("INSTRUCTOR WITH ID " + instructorId + " NOT FOUND");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        course.setInstructor(instructor);
+
+        Course savedCourse = courseService.save(course);
+
+        return new ResponseEntity<>(savedCourse, HttpStatus.CREATED);
     }
 
     @PostMapping("")
     public ResponseEntity<Instructor> saveInstructor(@RequestBody Instructor instructorToSave) {
         System.out.println("CREATING NEW INSTRUCTOR INSTANCE");
-        Instructor savedInstructor = service.save(instructorToSave);
+        Instructor savedInstructor = instructorService.save(instructorToSave);
 
         if (savedInstructor == null) {
             System.out.println("COULD NOT CREATE NEW INSTRUCTOR");
@@ -84,7 +104,7 @@ public class InstructorController {
     public ResponseEntity<Instructor> updateInstructor(@PathVariable("id") int id, @RequestBody Instructor instructor) {
         System.out.println("UPDATING INSTRUCTOR " + id);
 
-        Instructor currentInstructor = service.findById(id);
+        Instructor currentInstructor = instructorService.findById(id);
 
         if (currentInstructor == null) {
             System.out.println("INSTRUCTOR WITH ID " + id + " NOT FOUND");
@@ -95,7 +115,7 @@ public class InstructorController {
         currentInstructor.setLastName(instructor.getLastName());
         currentInstructor.setEmail(instructor.getEmail());
 
-        currentInstructor = service.save(currentInstructor);
+        currentInstructor = instructorService.save(currentInstructor);
         return new ResponseEntity<>(currentInstructor, HttpStatus.OK);
     }
 
@@ -103,14 +123,14 @@ public class InstructorController {
     public ResponseEntity<Instructor> deleteInstructor(@PathVariable("id") int id){
         System.out.println("DELETING INSTRUCTOR " + id);
 
-        Instructor currentInstructor = service.findById(id);
+        Instructor currentInstructor = instructorService.findById(id);
 
         if (currentInstructor == null) {
             System.out.println("INSTRUCTOR WITH ID " + id + " NOT FOUND");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        currentInstructor = service.delete(currentInstructor);
+        currentInstructor = instructorService.delete(currentInstructor);
         return new ResponseEntity<>(currentInstructor, HttpStatus.OK);
     }
 }

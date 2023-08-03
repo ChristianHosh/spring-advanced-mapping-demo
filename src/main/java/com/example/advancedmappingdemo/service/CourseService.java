@@ -37,4 +37,8 @@ public class CourseService {
         return repository.findCoursesByInstructor(instructor);
     }
 
+    public void delete(Course courseToDelete){
+        repository.delete(courseToDelete);
+    }
+
 }
